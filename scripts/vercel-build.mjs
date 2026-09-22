@@ -32,7 +32,21 @@ Common mistakes:
 }
 
 console.log("✓ DATABASE_URL looks valid");
+console.log(`✓ Node ${process.version}`);
 
-execSync("npx prisma generate", { stdio: "inherit" });
-execSync("npx prisma migrate deploy", { stdio: "inherit" });
-execSync("npx next build", { stdio: "inherit" });
+function run(command) {
+  console.log(`\n→ ${command}\n`);
+  try {
+    execSync(command, { stdio: "inherit", env: process.env });
+  } catch (error) {
+    console.error(`\n❌ Command failed: ${command}`);
+    if (error instanceof Error && "status" in error) {
+      process.exit(error.status || 1);
+    }
+    process.exit(1);
+  }
+}
+
+run("npx prisma generate");
+run("npx prisma migrate deploy");
+run("node ./node_modules/next/dist/bin/next build");
